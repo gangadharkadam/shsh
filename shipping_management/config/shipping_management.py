@@ -68,23 +68,19 @@ def get_data():
 					"description": _("Shipping Price List"),
 					"label": _("")
 				},
-		
-
-			   ]
-		    },
-		    {
-			"label": _("Main Reports"),
+			]
+		},
+		{
+			"label": _("Reports"),
 			"icon": "icon-table",
 			"items": [
 				{
-					"type": "report",
-					"is_query_report": True,
-					"name": "Stock Ledger",
-					"doctype": "Item",
+				"type": "report",
+				"name":"Trip Information",
+				"doctype": "Ship Container Log",
+				"is_query_report": False,
+				"route": "query-report/Trip Information",
 				},
-				
 			]
-		},
-		
-		
+		}
 	]

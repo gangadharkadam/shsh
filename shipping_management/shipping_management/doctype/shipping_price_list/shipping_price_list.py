@@ -8,8 +8,8 @@ from frappe.model.document import Document
 class ShippingPriceList(Document):
 	def validate(self):
 		pl = frappe.db.sql("""select name from `tabShipping Price List`
-			where shipping_company = '%s' and currency = '%s' 
-				and route = '%s'"""%(self.shipping_company, self.currency, self.route))
+			where shipping_company = '%s' and currency = '%s' and container = '%s' 
+				and route = '%s'"""%(self.shipping_company, self.currency, self.route, self.container))
 		if pl:
 			if pl[0][0] != self.name:
 				frappe.msgprint("Price List already exist", raise_exception=1)
