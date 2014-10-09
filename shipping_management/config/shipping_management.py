@@ -8,8 +8,8 @@ def get_data():
 			"items": [
 				{
 					"type": "doctype",
-					"name": "Book Trip",
-					"description": _("book trip"),
+					"name": "Book a Voyage",
+					"description": _("Book a Voyage"),
 					"label": _("")
 				},
 				{
@@ -66,6 +66,12 @@ def get_data():
 					"type": "doctype",
 					"name": "Shipping Price List",
 					"description": _("Shipping Price List"),
+					"label": _("")
+				},
+				{
+					"type": "doctype",
+					"name": "Service",
+					"description": _("Service Details"),
 					"label": _("")
 				},
 			]

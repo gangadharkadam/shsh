@@ -88,6 +88,21 @@
    "set_only_once": 0
   }, 
   {
+   "fieldname": "company", 
+   "fieldtype": "Link", 
+   "label": "Company", 
+   "options": "Shipping Company", 
+   "permlevel": 0, 
+   "precision": "", 
+   "reqd": 1
+  }, 
+  {
+   "fieldname": "column_break_5", 
+   "fieldtype": "Column Break", 
+   "permlevel": 0, 
+   "precision": ""
+  }, 
+  {
    "allow_on_submit": 0, 
    "fieldname": "ais_type", 
    "fieldtype": "Select", 
@@ -150,13 +165,18 @@
    "set_only_once": 0
   }, 
   {
-   "fieldname": "company", 
-   "fieldtype": "Link", 
-   "label": "Company", 
-   "options": "Shipping Company", 
+   "fieldname": "ship_capacity_details1", 
+   "fieldtype": "Data", 
+   "label": "Ship capacity details", 
    "permlevel": 0, 
-   "precision": "", 
-   "reqd": 1
+   "precision": ""
+  }, 
+  {
+   "fieldname": "teu_space_in_the_ship", 
+   "fieldtype": "Data", 
+   "label": "TEU Space in the ship", 
+   "permlevel": 0, 
+   "precision": ""
   }, 
   {
    "fieldname": "ship_capacity_details", 
@@ -183,7 +203,7 @@
  "issingle": 0, 
  "istable": 0, 
  "max_attachments": 10, 
- "modified": "2014-09-22 13:03:01.101050", 
+ "modified": "2014-10-09 16:03:49.721037", 
  "modified_by": "Administrator", 
  "module": "Shipping Management", 
  "name": "Ship", 
