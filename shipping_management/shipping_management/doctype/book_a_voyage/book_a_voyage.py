@@ -6,6 +6,7 @@ import frappe
 from frappe.model.document import Document
 from frappe.utils.email_lib import sendmail
 from frappe.utils import flt ,cint, cstr
+from frappe.model.mapper import get_mapped_doc
 
 class BookaVoyage(Document):
 	def fill_trip_info(self):
@@ -45,7 +46,7 @@ class BookaVoyage(Document):
 			and exists(select true from `tabintermediate ports` where parent=foo.service and port='%(source)s')
 			and exists(select true from `tabintermediate ports` where parent=foo.service and port='%(destination)s')
 			"""%{'from_date':self.from_date, 'to_date': self.to_date,
-		'c_type': self.container, 'c_no': self.qty, 'source':self.source, 'destination':self.destination}, as_dict=1,debug=1)
+		'c_type': self.container, 'c_no': self.qty, 'source':self.source, 'destination':self.destination}, as_dict=1)
 	
 	def calc_price(self, trip_info):
 		for trip in trip_info:
@@ -142,16 +143,19 @@ def make_customer(source_name, target_doc=None):
 	return _make_customer(source_name, target_doc)
 
 def _make_customer(source_name, target_doc=None, ignore_permissions=False):
-	doclist = get_mapped_doc("Lead", source_name,
-		{"Lead": {
-			"doctype": "Customer",
-			"field_map": {
-				"name": "lead_name",
-				"company_name": "customer_name",
-				"contact_no": "phone_1",
-				"fax": "fax_1"
-			}
-		}}, target_doc, set_missing_values, ignore_permissions=ignore_permissions)
-
+	doclist = get_mapped_doc("Book a Voyage", source_name, {
+			"Book a Voyage": {
+				"doctype": "Review Booking Details",
+				"field_map": {
+					"source": "source",
+					"destination": "destination"
+				}
+			},
+			"trip_info": {
+				"doctype": "Review Booking Details",
+				"field_map": {
+					"trip_id": "trip"
+				}
+			}}, target_doc)
 	return doclist
 

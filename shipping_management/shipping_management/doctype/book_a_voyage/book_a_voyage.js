@@ -6,7 +6,7 @@ cur_frm.cscript.select = function(doc, cdt, cdn){
 }
 cur_frm.cscript.add_trip = function(doc, cdt, cdn){
 		frappe.model.open_mapped_doc({
-			method: "erpnext.selling.doctype.lead.lead.make_customer1",
+			method: "shipping_management.shipping_management.doctype.book_a_voyage.book_a_voyage.make_customer",
 			frm: cur_frm
 		})
 }
