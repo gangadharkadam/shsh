@@ -40,12 +40,6 @@ def get_data():
 				},
 				{
 					"type": "doctype",
-					"name": "Container",
-					"description": _("Container"),
-					"label": _("")
-				},
-				{
-					"type": "doctype",
 					"name": "Trip",
 					"description": _("Trip"),
 					"label": _("")

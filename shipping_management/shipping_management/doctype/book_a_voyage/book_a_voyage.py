@@ -14,30 +14,38 @@ class BookaVoyage(Document):
 		self.fill_chld(trip_info)
 
 	def get_trip_info(self):
-		return frappe.db.sql("""select start_date,end_date,trip_id,ship_name,container,(capacity-booked_container) as available_capacity from 
+		return frappe.db.sql("""select trip_id,source,destination,start_date,end_date,destination_duration,container,(capacity-booked_container) as available_capacity from 
 			(
 			SELECT
 			    t.start_date,
 			    t.end_date,
+			    ser.port_of_loading as source,
+			    ser.port_of_discharge as destination,
+			    (select duration from `tabintermediate ports`  where parent=ser.name and port='%(source)s') as source_duration,
+   			    (select duration from `tabintermediate ports`  where parent=ser.name and port='%(destination)s') as destination_duration,
+			    ser.name as service,
 			    t.name as trip_id,
 			    s.name as ship_name,
 			    c.container,
 			    c.capacity,
 			    coalesce((select  sum(booked_container) from `tabShip Container Log` where trip_id=t.name and container=c.container),0) as booked_container    
 			FROM
+			    tabService ser,
 			    tabTrip t,
 			    tabShip s,
 			    `tabCargo Details` c
 			WHERE
-			t.ship_id=s.name
+			ser.name=t.service_id
+			and t.ship_id=s.name
 			and s.name=c.parent
 			)foo
 			where
-			start_date>=coalesce(date('%(from_date)s'),now()) and end_date<=coalesce(date('%(to_date)s'),now()) and container='%(container)s' and (capacity-booked_container)>=%(qty)s
-			and exists(select true from `tabSub Routes` where parent=foo.trip_id and location='%(source)s')
-			and exists(select true from `tabSub Routes` where parent=foo.trip_id and location='%(dest)s')
-		"""%{'from_date':self.from_date, 'to_date': self.to_date,
-		'container': self.container, 'qty': self.qty, 'source':self.source, 'dest':self.destination}, as_dict=1,debug=1)
+			start_date>=coalesce(date('%(from_date)s'),now()) and end_date<=coalesce(date('%(to_date)s'),now())
+			and foo.container='%(c_type)s' and (foo.capacity-foo.booked_container ) >= '%(c_no)s'
+			and exists(select true from `tabintermediate ports` where parent=foo.service and port='%(source)s')
+			and exists(select true from `tabintermediate ports` where parent=foo.service and port='%(destination)s')
+			"""%{'from_date':self.from_date, 'to_date': self.to_date,
+		'c_type': self.container, 'c_no': self.qty, 'source':self.source, 'destination':self.destination}, as_dict=1,debug=1)
 	
 	def calc_price(self, trip_info):
 		for trip in trip_info:
@@ -55,6 +63,8 @@ class BookaVoyage(Document):
 
 		if amt:
 			trip['amt'] = amt[0][1]
+		else:
+			trip['amt']=15000
 
 	def fill_chld(self, trip_info):
 		self.set('trip_info', [])
@@ -63,6 +73,9 @@ class BookaVoyage(Document):
 			nl = self.append('trip_info', {})
 			nl.trip_id =d.trip_id
 			nl.from_date = d.start_date
+			nl.from_location=d.source
+			nl.to_location=d.destination
+			nl.duration=d.destination_duration
 			nl.to_date = d.end_date
 			nl.ship_id = d.ship_name
 			nl.container = self.container
@@ -71,16 +84,7 @@ class BookaVoyage(Document):
 			nl.amount = cstr(flt(nl.qty) * flt(d.amt))
 
 	def fil_selected_trip(self):
-		self.set('selected_trip', [])
-		for d in self.get('trip_info'):
-			if cint(d.select) == 1:
-				nl = self.append('selected_trip', {})
-				nl.trip_id =d.trip_id
-				nl.ship_id = d.ship_id
-				nl.container = d.container
-				nl.qty = d.qty
-				nl.rate = d.rate
-				nl.amount = d.amount
+		pass
 
 	def make_log_entry(self):
 		so_no = self.make_log()
@@ -132,4 +136,22 @@ class BookaVoyage(Document):
 			else:
 				d.select = 0
 		return True
+
+@frappe.whitelist()
+def make_customer(source_name, target_doc=None):
+	return _make_customer(source_name, target_doc)
+
+def _make_customer(source_name, target_doc=None, ignore_permissions=False):
+	doclist = get_mapped_doc("Lead", source_name,
+		{"Lead": {
+			"doctype": "Customer",
+			"field_map": {
+				"name": "lead_name",
+				"company_name": "customer_name",
+				"contact_no": "phone_1",
+				"fax": "fax_1"
+			}
+		}}, target_doc, set_missing_values, ignore_permissions=ignore_permissions)
+
+	return doclist
 
